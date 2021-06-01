@@ -1,56 +1,59 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import { useSelector } from 'react-redux';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import Homepage from './components/Homepage';
+import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import Profile from './components/Profile';
+import TweetPage from './components/tweets/TweetPage'
+import { selectUser } from './features/userSlice';
+import ProtectedRoute from './components/functionality/ProtectedRoute';
 
 function App() {
+
+  const user = useSelector(selectUser)
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+      
+      <BrowserRouter>
+        
+        <Switch>
+          <Route exact path="/login">
+            <Login />
+          </Route>
+
+          <Route exact path="/register">
+            <Register />
+          </Route>
+
+          <ProtectedRoute path="/">
+            {user?<Navbar />:""}
+            <div className="App__content">
+              <ProtectedRoute exact path="/">
+                <Homepage />
+              </ProtectedRoute>
+              <ProtectedRoute exact path="/profile">
+                <Profile />
+              </ProtectedRoute>
+              <ProtectedRoute exact path="/tweet/:id">
+                <TweetPage />
+              </ProtectedRoute>
+            </div>
+            {user?<Sidebar />:""}
+          </ProtectedRoute>
+
+          <Route>
+            <p>404</p>
+          </Route>
+
+        </Switch>
+        
+      </BrowserRouter>
+      
     </div>
   );
 }

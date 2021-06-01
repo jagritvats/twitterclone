@@ -1,0 +1,110 @@
+.navbar{
+    padding-bottom:5em;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    /* height: 100vh; */
+}
+
+.navbar > *{
+    width: fit-content;
+    margin:5%;
+}
+
+.navbar__item{
+    border-radius: 40px;
+    display: flex;
+    cursor: pointer;
+    width: fit-content;
+    align-items: center;
+    padding:0em 1em 0em 0.8em;
+    display: flex;
+    text-decoration: none !important;
+    color:black;
+}
+
+.twittericon{
+    border-radius: 50%;
+    padding: 0.4em;
+    margin-left: 0.5em;
+}
+
+.twittericon > a{
+    color:#1da1f2;
+    height: 100%;
+}
+
+.twittericon:hover{
+    background-color: #E8F5FE;
+
+}
+
+.twittericon .MuiSvgIcon-root{
+
+    font-size: 1.8em;
+}
+
+.navbar__icon{
+    fill:  rgb(29, 161, 242);
+
+}
+
+.navbar__icon > svg{
+    font-size: 2em;
+}
+
+
+.navbar__item > h3{
+    margin-left: 10px;
+    margin: 10px;
+}
+
+a.active{
+    color:#25a4f2;
+}
+
+.navbar__item:hover{
+    background-color: #E8F5FE;
+}
+
+.navbar__tweet{
+    background-color: #1da1f2;
+    color:white;
+    padding:0.8em 2em;
+    width: 180px;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+}
+
+.navbar__tweet:hover{
+    background-color: #1A91DA;
+}
+
+.navbar__profile{
+    position: absolute;
+    bottom: 10px;
+}
+
+.navbar__profile > a{
+    text-decoration: none;
+    color: black;
+}
+
+@media screen and (max-width:720px) {
+
+    a.navbar__item{
+        justify-content: center;
+    }
+    .navbar__item h3{
+        display: none;
+    }
+
+    .navbar__item{
+        text-align: center;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding:0.4em;
+    }
+}
