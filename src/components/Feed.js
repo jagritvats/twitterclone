@@ -18,7 +18,7 @@ function Feed({filterFunc=()=>true}) {
     let [loading, setLoading] = useState(true)
 
     useEffect(()=>{
-        db.collection('tweets').get().then((docs)=>{
+        db.collection('tweets').orderBy("time","desc").get().then((docs)=>{
             let tempTweets = []
             docs.forEach(doc => {
                 let data = doc.data()
