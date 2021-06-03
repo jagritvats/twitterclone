@@ -8,7 +8,7 @@ const ProtectedRoute = (props) => {
     const user = useSelector(selectUser)
     return (
         <Route {...props}>
-            {user?
+            {user.user?
                 props.children
             :
                 <Redirect to="login"/>

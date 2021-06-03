@@ -1,39 +1,90 @@
 import { TextField } from '@material-ui/core'
 import './Auth.css'
 import './Register.css'
-import React, { useState } from 'react'
-import {Link, useHistory} from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import {Link} from 'react-router-dom'
 import TwitterIcon from '@material-ui/icons/Twitter';
 import { useDispatch } from 'react-redux';
+import {auth, db, firestore} from '../../app/config/firebase'
 
 import blank_profile_image from './blank_profile_img.png'
+import useStorage from '../../hooks/useStorage'
+import { login } from '../../features/userSlice'
 
 function Register() {
 
     let [fname, setFname] = useState('')
     let [lname, setLname] = useState('')
-    let [userName, setUserName] = useState('')
+    let [username, setUserName] = useState('')
     let [email, setEmail] = useState('')
     let [password, setPassword] = useState('')
-    let [img, setImg] = useState(blank_profile_image)
+    let [img, setImg] = useState(null)
     let [bday, setbday] = useState('');
+    let [Rerror, setRError] = useState(null)
 
     let [usernameError, setUserNameError] = useState(false)
     let [isEligible, setIsEligible] = useState(true);
 
     const dispatch = useDispatch()
-    const history = useHistory()
+
+    let { URL, loading, error } = useStorage(img)
+
+    var [usernames, setUsernames] = useState([]);
+
+    useEffect(()=>{
+        (async () => {
+            let usernamesDoc = await db.collection('usernames').doc('usernames').get()
+            setUsernames(usernamesDoc.data().usernames)
+            console.log(usernames)
+        })()
+        
+    },[])
 
     const imgInput = (e) => {
-        setImg(URL.createObjectURL(e.target.files[0]))
+        const file = e.target.files[0]
+        setImg(file)
     }
 
-    const doRegister = () => {
-        if(!isEligible){
+    const doRegister = (e) => {
+        e.preventDefault()
+        if(!isEligible || loading || usernameError){
             return
         }
-        // dispatch(login())
-        history.push("/")
+
+        const now = new Date();
+        
+        const userData = {
+            fname,
+            lname,
+            username:username,
+            email,
+            photoURL:URL,
+            bday,
+            joinedAt : now.toUTCString(),
+            tweets : [],
+            likes : [],
+            comments : [],
+            following : [],
+            followers : [],
+            isVerified : false
+        }
+        auth.createUserWithEmailAndPassword(email,password).then((userAuth)=>{
+            userAuth.user.updateProfile({
+                displayName : fname + " " + lname,
+                photoURL : URL
+            }).then(()=>{
+            db.collection('users').doc(userAuth.user.uid).set(userData).then(()=>{
+                dispatch(login(userAuth.user))
+
+                return db.collection('usernames').doc('usernames').update({
+                    usernames : firestore.FieldValue.arrayUnion(username)
+                })
+            })
+            })
+        }).catch(err=>{
+            setRError(err)
+        })
+        
     }
     return (
         <div className="auth register">
@@ -45,7 +96,7 @@ function Register() {
                 
                 <h1>Sign Up for Twitter</h1>
                 <form className="auth__form" onSubmit={doRegister}>
-                    <div className="register__image">
+                    <div className={"register__image" + (loading?" uploading":"") + (Rerror?" error":"")}>
                         <input
                             color="primary"
                             accept="image/*"
@@ -55,7 +106,7 @@ function Register() {
                             style={{ display: 'none', }}
                         />
                         <label htmlFor="icon-button-file">
-                            <img src={img} alt="profile_image" className="register__image"/>
+                            <img src={URL===null?blank_profile_image:URL} alt="profile_image" className="register__image"/>
                         </label>
                     </div>
 
@@ -63,18 +114,22 @@ function Register() {
                         <TextField label="First Name" variant="outlined" type="text" value={fname} onChange={e=>setFname(e.target.value)} required/>
                         <TextField label="Last Name" variant="outlined" type="text" value={lname} onChange={e=>setLname(e.target.value)}/>
                     </div>
-                    <TextField label="Username" variant="outlined" type="text" value={userName} onChange={e=>{
-                        const username = e.target.value
+                    <TextField label="Username" variant="outlined" type="text" value={username} onChange={e=>{
+                        const userName = e.target.value.trim()
                         // validate username uniquness
-                        const usernames = ['user','admin']; //fetch from firestore
-                        if(usernames.includes(username)){
-                            setUserNameError(true)
+                    //    .data()
+                        // const usernames = ['user','admin']; //fetch from firestore
+                        console.log(usernames)
+                        if(usernames.includes(userName)){
+                            setUserNameError("This username is already taken")
+                        }else if(username.includes(" ")){
+                            setUserNameError("No spaces allowed in username")
                         }else{
                             setUserNameError(false)
                         }
-                        setUserName(username)
+                        setUserName(userName)
                     }} required/>
-                    {usernameError? <p className="register__validate">Enter an unique username</p>:""}
+                    {usernameError? <p className="register__validate">{usernameError}</p>:""}
                     {/* SAdd loading circle for loading of username */}
                     <TextField label="Email" variant="outlined" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/>
                     <TextField label="Password" variant="outlined" type="password" value={password} onChange={e=>setPassword(e.target.value)} required/>
@@ -104,7 +159,9 @@ function Register() {
                         }}
                     />
                     {!isEligible? <p className="register__validate">You should be atleast 13 years old</p>:""}
-                    <button type="submit" className="auth__submit" disabled={!isEligible || usernameError}>Register</button>
+                    {Rerror?<p className="error">{Rerror.message}</p>:""}
+                    {error?<p className="error">{error.message}</p>:""}
+                    <button type="submit" className="auth__submit" disabled={!isEligible || usernameError || loading}>Register</button>
                 </form>
                 
                 <Link to="/login">Already have an account?</Link>
