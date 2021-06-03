@@ -1,15 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {db} from '../app/config/firebase'
 
 const initialState = {
-  user: "yess",
-  status: 'idle',
+  user: null,
+  dataStatus:'loading'
 };
 
-export const incrementAsync = createAsyncThunk(
-  'counter/fetchCount',
-  async (amount) => {
-    // const response = await fetchCount(amount);
-    // return response.data;
+export const login = createAsyncThunk(
+  'counter/login',
+  async (user) => {
+    const doc = await db.collection('users').doc(user.uid).get()
+    const data = doc.data()
+    return {user, data}
   }
 );
 
@@ -17,36 +19,35 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    login: (state) => {
-      state.user = {name:"user"}
+    addAuthData : (state,action) => {
+      state.userData = action.payload.userData
     },
     logout: (state) => {
       state.user = null
-    },
-    increment: (state) => {
-      state.value += 1;
-    },
-    decrement: (state) => {
-      state.value -= 1;
-    },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload;
-    },
+      state.userData = null
+      state.dataStatus = 'idle'
+    }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(incrementAsync.pending, (state) => {
-        state.status = 'loading';
+      .addCase(login.pending, (state) => {
+        state.dataStatus = 'loading';
       })
-      .addCase(incrementAsync.fulfilled, (state, action) => {
-        state.status = 'idle';
-        state.value += action.payload;
-      });
+      .addCase(login.fulfilled, (state, action) => {
+        state.dataStatus = 'idle';
+        console.log(action,action.payload)
+        state.user = action.payload.user
+        state.userData = action.payload.data
+      }).addCase(login.rejected, (state) => {
+        state.dataStatus = 'idle';
+        state.user = null
+        state.userData = null
+      });;
   },
 });
 
-export const { login, logout, increment, decrement, incrementByAmount } = userSlice.actions;
+export const { addAuthData , logout} = userSlice.actions;
 
-export const selectUser = (state) => state.user.user;
+export const selectUser = (state) => state.user;
 
 export default userSlice.reducer;
