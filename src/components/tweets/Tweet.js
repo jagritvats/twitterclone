@@ -14,8 +14,9 @@ import { db } from '../../app/config/firebase';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../features/userSlice';
 import { Link } from 'react-router-dom';
+import Comment from './Comment';
 
-const TweetButton = (Icon, num, color, onClick, name , active = false) => {
+export const TweetButton = (Icon, num, color, onClick, name , active = false) => {
     return (
         <div className={"tweet__button active-" + color + (active?" active-btn":"")} onClick={onClick} data-tooltip={name}>
             <Icon />
@@ -35,7 +36,9 @@ function Tweet({isSubTweet = false, id, user, tweet, likes, comments, retweets, 
 
     let [author, setAuthor] = useState(null)
 
-    let isLiked = likes.includes(currentUser.user.uid);
+    let isLiked = likes.includes(currentUser.user.uid)
+
+    let [commentVisibility, setCommentVisibility] = useState(false)
 
     const attachments = []
 
@@ -75,11 +78,15 @@ function Tweet({isSubTweet = false, id, user, tweet, likes, comments, retweets, 
     }
 
     const comment = () => {
-        
+        setCommentVisibility(prev=>!prev)
     }
 
     const share = () => {
         
+    }
+
+    const doComment = () => {
+
     }
 
     return (
@@ -88,9 +95,9 @@ function Tweet({isSubTweet = false, id, user, tweet, likes, comments, retweets, 
                 loading?<CircularProgress />
                 :
                 <>
-                    <div className="tweet__authorImg">
+                    <Link to={"/profile/" + user}  className="tweet__authorImg">
                         <img src={author.photoURL?author.photoURL:blank_profile_img} alt="" />
-                    </div>
+                    </Link>
 
                     <div className="tweet__content">
                         <Link to={"/profile/" + user} className="tweet__authorInfo">
@@ -119,6 +126,20 @@ function Tweet({isSubTweet = false, id, user, tweet, likes, comments, retweets, 
                             {TweetButton(isLiked?FavoriteIcon:FavoriteBorderIcon, likes?.length, "red", like , "Like",isLiked)}
                             {TweetButton(ShareIcon,"", "blue", share , "Share")}
                         </div>
+
+                        {
+                            commentVisibility?
+                                <div className="tweet__comments">
+                                    <form className="tweet__commentsInput" onSubmit={doComment}>
+                                        <input type="text" />
+                                        <button type="submit">Comment</button>
+                                    </form>
+                                    {comments.map((comment)=><Comment comment={comment}/>)}
+                                </div>
+                                
+                            :
+                            ""
+                        }
                     </div>
                 
                 </>

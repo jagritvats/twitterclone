@@ -20,7 +20,14 @@ function Profile({userProfile}) {
     let user = null
     let otherProfile = true
     if(userProfile){
-      user = {userData:userProfile}
+      if(currentUser.userData.uid===userProfile.uid){
+        user = currentUser
+        otherProfile = false
+
+      }else{
+        user = {userData:userProfile}
+      }
+      
     }else{
       user = currentUser
       otherProfile = false

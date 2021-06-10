@@ -66,9 +66,11 @@ function Register() {
             comments : [],
             following : [],
             followers : [],
-            isVerified : false
+            isVerified : false,
+            uid : null
         }
         auth.createUserWithEmailAndPassword(email,password).then((userAuth)=>{
+            userData.uid = userAuth.user.uid
             userAuth.user.updateProfile({
                 displayName : fname + " " + lname,
                 photoURL : URL

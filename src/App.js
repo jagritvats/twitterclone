@@ -16,6 +16,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import {auth} from './app/config/firebase'
 import OtherProfilePage from './components/pages/OtherProfilePage';
+import Explore from './components/pages/Explore';
 
 function App() {
 
@@ -69,6 +70,9 @@ function App() {
               </ProtectedRoute>
               <ProtectedRoute exact path="/profile">
                 <Profile />
+              </ProtectedRoute>
+              <ProtectedRoute exact path="/explore">
+                <Explore />
               </ProtectedRoute>
               <ProtectedRoute exact path="/profile/:id">
                 <OtherProfilePage/>
