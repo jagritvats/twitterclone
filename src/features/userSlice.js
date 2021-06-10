@@ -35,7 +35,6 @@ export const userSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.dataStatus = 'idle';
-        console.log(action,action.payload)
         state.user = action.payload.user
         state.userData = action.payload.data
       }).addCase(login.rejected, (state) => {

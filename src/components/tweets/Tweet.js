@@ -13,6 +13,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { db } from '../../app/config/firebase';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../features/userSlice';
+import { Link } from 'react-router-dom';
 
 const TweetButton = (Icon, num, color, onClick, name , active = false) => {
     return (
@@ -92,12 +93,12 @@ function Tweet({isSubTweet = false, id, user, tweet, likes, comments, retweets, 
                     </div>
 
                     <div className="tweet__content">
-                        <div className="tweet__authorInfo">
+                        <Link to={"/profile/" + user} className="tweet__authorInfo">
                             <h5>{author.fname + " " + author.lname}</h5>
                             <p>@{author.username}</p>
                             <span>&middot;</span>
                             <p>{time.toString()}</p>
-                        </div>
+                        </Link>
 
                         <div className="tweet__main">
                             <p className="tweet__text">{tweet.tweetText}</p>

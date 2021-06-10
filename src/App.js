@@ -15,6 +15,7 @@ import ProtectedRoute from './components/functionality/ProtectedRoute';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import {auth} from './app/config/firebase'
+import OtherProfilePage from './components/pages/OtherProfilePage';
 
 function App() {
 
@@ -39,8 +40,6 @@ function App() {
       }else{
         dispatch(logout())
       }
-      console.log(user)
-      // dispatch(authLoaded())
     })
     return () => unsub()
   }
@@ -72,7 +71,7 @@ function App() {
                 <Profile />
               </ProtectedRoute>
               <ProtectedRoute exact path="/profile/:id">
-                <Profile other={true}/>
+                <OtherProfilePage/>
               </ProtectedRoute>
               <ProtectedRoute exact path="/tweet/:id">
                 <TweetPage />

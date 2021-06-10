@@ -13,28 +13,32 @@ import blank_profile_img from '../auth/blank_profile_img.png'
 import { selectUser } from '../../features/userSlice';
 import { useSelector } from 'react-redux';
 
-function Profile({other}) {
+function Profile({userProfile}) {
+    
+    const currentUser = useSelector(selectUser)
 
-    const user = useSelector(selectUser)
-
-    const joinedDate = new Date(Date.parse(user.userData.joinedAt));
+    let user = null
+    let otherProfile = true
+    if(userProfile){
+      user = {userData:userProfile}
+    }else{
+      user = currentUser
+      otherProfile = false
+    }
+    const displayName = user.userData.fname + " " + user.userData.lname
+    const joinedDate = new Date(Date.parse(user.userData.joinedAt))
     const joinedMonth = joinedDate.toLocaleString('default', { month: 'long' });
 
     let history = useHistory()
 
     let [selectedTab, setSelectedTab] = useState('Tweets')
 
-    if(other){
-        //fetch this user from params
-    }else{
-        //current prof details
-    }
     return (
         <div className="profilePage">
             <header className="profilePage__header">
                 <ArrowBackIcon onClick={()=>{history.goBack()}}/>
                 <div className="profilePage__headerSummary">
-                    <h3>{user.user.displayName}</h3>
+                    <h3>{displayName}</h3>
                     <p>{user.userData.tweets.length} tweets</p>
                 </div>
             </header>
@@ -47,12 +51,17 @@ function Profile({other}) {
                 <div className="profilePage__details">
 
                     <div className="profilePage__profImg">
-                        <img src={user.user.photoURL?user.user.photoURL:blank_profile_img} alt=""  /> 
+                        <img src={user.userData.photoURL?user.userData.photoURL:blank_profile_img} alt=""  /> 
                     </div>
                         
-                    <button className="profilePage__editProfileBtn">Edit Profile</button>
+                    {
+                      !otherProfile?
+                      <button className="profilePage__editProfileBtn">Edit Profile</button>
+                      :
+                      <button className="profilePage__editProfileBtn">Follow</button>
+                    }
 
-                    <h3>{user.user.displayName}</h3>
+                    <h3>{displayName}</h3>
                     <p className="profilePage__username">@{user.userData.username}</p>
 
                     <p className="bio">This is an empty bio, add some bio so that people can get to know you better!</p>
@@ -66,9 +75,14 @@ function Profile({other}) {
                     <div className="profilePage__followState">
                         <p className="following"><strong>{user.userData.following.length}</strong> following</p>
                         <p className="followers"><strong>{user.userData.followers.length}</strong> followers</p>
-                        <button onClick={()=>{
+                        {
+                          !otherProfile?
+                          <button onClick={()=>{
                             auth.signOut()
-                        }}>Sign Out</button>
+                          }}>Sign Out</button>
+                          :
+                          ""
+                        }
                     </div>
                 </div>
             </div>
@@ -90,10 +104,10 @@ function Profile({other}) {
 
             <div className="profilePage__tabContent">
                 {/* logic */}
-                {selectedTab==="Tweets"?<Feed filterFunc={(tweet)=>tweet.user===user.user.uid}/>:""}
-                {selectedTab==="Tweets & Replies"?<Feed filterFunc={(tweet)=>tweet.user===user.user.uid}/>:""}
-                {selectedTab==="Media"?<Feed filterFunc={(tweet)=>tweet.user===user.user.uid}/>:""}
-                {selectedTab==="Likes"?<Feed filterFunc={(tweet)=>tweet.likes.includes(user.user.uid)}/>:""}
+                {selectedTab==="Tweets"?<Feed filterFunc={(tweet)=>tweet.user===user.userData.uid}/>:""}
+                {selectedTab==="Tweets & Replies"?<Feed filterFunc={(tweet)=>tweet.user===user.userData.uid}/>:""}
+                {selectedTab==="Media"?<Feed filterFunc={(tweet)=>tweet.user===user.userData.uid}/>:""}
+                {selectedTab==="Likes"?<Feed filterFunc={(tweet)=>tweet.likes.includes(user.userData.uid)}/>:""}
             </div>
         </div>
     )
